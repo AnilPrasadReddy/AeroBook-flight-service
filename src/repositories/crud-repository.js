@@ -1,66 +1,69 @@
-const { response } = require("express");
+const { raw } = require("mysql2");
 const { logger } = require("sequelize/lib/utils/logger");
+
 
 class CrudRepository {
     constructor(model) {
         this.model = model;
     }
 
-    async create(data){
+    async create(data) {
         try {
             const response = await this.model.create(data);
             return response;
         } catch (error) {
-            logger.error("An error has occured at CRUD-repo : 'create' ");
+            logger.error("Error in CRUD-repo: 'create'", error);
             throw error;
         }
     }
 
-    async destroy(data){
+    async destroy(id) {
         try {
             const response = await this.model.destroy({
-                where:{
-                    id:data
+                where: {
+                    id: id
                 }
             });
             return response;
         } catch (error) {
-            logger.error("An error has occured at CRUD-repo : 'destroy'");
+            logger.error("Error in CRUD-repo: 'destroy'", error);
             throw error;
         }
     }
 
-    async get(data){
+    async get(id) {
         try {
-            const reponse =  await this.model.getByPk(data);
+            const response = await this.model.findByPk(id);  // ✅ Fixed typo: getByPk -> findByPk
             return response;
         } catch (error) {
-            logger.error("An error has occured at CRUD-repo : 'get'");
+            logger.error("Error in CRUD-repo: 'get'", error);
             throw error;
         }
     }
 
-    async getAll(){
+    async getAll() {
         try {
             const response = await this.model.findAll();
             return response;
         } catch (error) {
-            logger.error("An error has occured at CRUD-repo : 'getAll'");
+            logger.error("Error in CRUD-repo: 'getAll'", error);
             throw error;
         }
     }
 
-    async update(id,data){
+    async update(id, data) {
         try {
-            const response = await this.model.update(data,{
-                where:{
-                    id:id
+            const response = await this.model.update(data, {
+                where: {
+                    id: id
                 }
-            })
+            });
+            return response; 
         } catch (error) {
-            logger.error("An has occured at CRUD-repo : 'update'");
+            logger.error("Error in CRUD-repo: 'update'", error);
             throw error;
         }
     }
 }
-module.exports=CrudRepository;
+
+module.exports = CrudRepository;
