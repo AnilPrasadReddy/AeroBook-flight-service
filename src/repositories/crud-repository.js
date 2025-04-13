@@ -1,5 +1,7 @@
 const { raw } = require("mysql2");
 const { logger } = require("sequelize/lib/utils/logger");
+const { AppError } = require("../utils/error/app-error");
+const { StatusCodes } = require("http-status-codes");
 
 
 class CrudRepository {
@@ -8,47 +10,36 @@ class CrudRepository {
     }
 
     async create(data) {
-        try {
-            const response = await this.model.create(data);
-            return response;
-        } catch (error) {
-            logger.error("Error in CRUD-repo: 'create'", error);
-            throw error;
-        }
+        const response = await this.model.create(data);
+        return response;
     }
 
     async destroy(id) {
-        try {
-            const response = await this.model.destroy({
-                where: {
-                    id: id
-                }
-            });
-            return response;
-        } catch (error) {
-            logger.error("Error in CRUD-repo: 'destroy'", error);
-            throw error;
+        const response = await this.model.destroy({
+            where: {
+                id: id
+            }
+        });
+        if(!response){
+            throw new AppError(`No record found with id: ${id}`, StatusCodes.NOT_FOUND);
         }
+        return response;
     }
 
     async get(id) {
-        try {
-            const response = await this.model.findByPk(id);  // ✅ Fixed typo: getByPk -> findByPk
-            return response;
-        } catch (error) {
-            logger.error("Error in CRUD-repo: 'get'", error);
-            throw error;
+
+        const response = await this.model.findByPk(id);
+        if (!response) {
+            throw new AppError(`No record found with id: ${id}`, StatusCodes.NOT_FOUND);
         }
+        return response;
+
     }
 
     async getAll() {
-        try {
-            const response = await this.model.findAll();
-            return response;
-        } catch (error) {
-            logger.error("Error in CRUD-repo: 'getAll'", error);
-            throw error;
-        }
+
+        const response = await this.model.findAll();
+        return response;
     }
 
     async update(id, data) {
@@ -64,6 +55,7 @@ class CrudRepository {
             throw error;
         }
     }
+    
 }
 
 module.exports = CrudRepository;

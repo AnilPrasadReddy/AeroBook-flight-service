@@ -7,6 +7,6 @@ const { AeroplaneService } = require('../../services');
 router.post('/',AeroplaneMiddleware.isValidCreateReq,AeroplaneController.createAeroplane);
 router.get('/',AeroplaneController.getAllAeroplanes);
 router.get('/:id',AeroplaneController.getAeroplane);
-router.put('/:id',AeroplaneMiddleware.isValidCreateReq,AeroplaneController.updateAeroplane);
+router.put('/:id',AeroplaneController.updateAeroplane);
 router.delete('/:id',AeroplaneController.deleteAeroplane);
 module.exports=router;
