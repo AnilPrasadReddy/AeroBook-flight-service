@@ -1,7 +1,8 @@
 const express = require('express');
 const { ServerConfig } = require('./config');
 const app = express();
-
+//hello world
+const data=1007;
 const apiRoutes = require('./routes');
 
 app.use(express.json());
