@@ -7,6 +7,7 @@ const apiRoutes = require('./routes');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
+//api routes utilization
 app.use('/api',apiRoutes);
 
 app.listen(ServerConfig.PORT,()=>{
