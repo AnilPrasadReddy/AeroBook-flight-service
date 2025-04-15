@@ -3,6 +3,7 @@ const { FlightRepository } = require('../repositories');
 const { AppError } = require('../utils/error/app-error');
 const { compareTimes } = require('../utils/helpers/datetime-helper');
 const { Op } = require('sequelize');
+const e = require('express');
 
 const flightRepository = new FlightRepository()
 
@@ -29,6 +30,7 @@ async function createFlight(data) {
 
 async function getAllFlights(query){
     let customFilter = {};
+    const end = ' 23:59:59';
     if(!query){
         throw new AppError('Query is required', StatusCodes.BAD_REQUEST);
     }
@@ -54,6 +56,12 @@ async function getAllFlights(query){
     if(query.travellers){
         customFilter.totalSeats ={
             [Op.gte]: query.travellers
+        }
+    }
+
+    if(query.date){
+        customFilter.departureTime = {
+            [Op.between]: [query.date,query.date+end]
         }
     }
 
