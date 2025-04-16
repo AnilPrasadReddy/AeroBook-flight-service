@@ -33,67 +33,43 @@ async function createFlight(data) {
 async function getAllFlights(query) {
     let customFilter = {};
     let sortFilter = [];
-
-    if (!query) {
-        throw new AppError('Query is required', StatusCodes.BAD_REQUEST);
+    const endingTripTime = " 23:59:00";
+    // trips=MUM-DEL
+    if(query.trips) {
+       
+       [departureAirportId, arrivalAirportId] = query.trips.split("-"); 
+       customFilter.departureAirportId = departureAirportId;
+       customFilter.arrivalAirportId = arrivalAirportId;
+       // TODO: add a check that they are not same
     }
-
-    if (query.trips) {
-        let [departureAirportId, arrivalAirportId] = query.trips.split('-');
-        customFilter.departureAirportId = departureAirportId;
-        customFilter.arrivalAirportId = arrivalAirportId;
-
-        if (departureAirportId === arrivalAirportId) {
-            throw new AppError('Departure and Arrival airport cannot be same', StatusCodes.BAD_REQUEST);
-        }
-        if (!departureAirportId || !arrivalAirportId) {
-            throw new AppError('Departure and Arrival airport cannot be empty', StatusCodes.BAD_REQUEST);
-        }
-    }
-
-    if (query.price) {
-        let [minPrice, maxPrice] = query.price.split('-');
+    if(query.price) {
+        [minPrice, maxPrice] = query.price.split("-");
         customFilter.price = {
-            [Op.between]: [minPrice, maxPrice === undefined ? 10000000 : maxPrice]
-        };
+            [Op.between]: [minPrice, ((maxPrice == undefined) ? 20000: maxPrice)]
+        }
     }
-
-    if (query.travellers) {
+    if(query.travellers) {
         customFilter.totalSeats = {
             [Op.gte]: query.travellers
-        };
-    }
-
-    if (query.date) {
-        const trimmedDate = query.date.trim();
-        
-        // Optional: Validate date format
-        if (!moment(trimmedDate, 'YYYY-MM-DD', true).isValid()) {
-            throw new AppError('Invalid date format. Expected YYYY-MM-DD', StatusCodes.BAD_REQUEST);
         }
-
-        const startDate = new Date(trimmedDate + 'T00:00:00');
-        const endDate = new Date(trimmedDate + 'T23:59:59');
-
-        customFilter.departureTime = {
-            [Op.between]: [startDate, endDate]
-        };
     }
-
-    if (query.sort) {
+    if(query.tripDate) {
+        customFilter.departureTime = {
+            [Op.between]: [query.tripDate, query.tripDate + endingTripTime]
+        }
+    }
+    if(query.sort) {
         const params = query.sort.split(',');
         const sortFilters = params.map((param) => param.split('_'));
-        sortFilter = sortFilters;
+        sortFilter = sortFilters
     }
-
+    console.log(customFilter, sortFilter);
     try {
         const flights = await flightRepository.getAllFlights(customFilter, sortFilter);
-        if (!flights || flights.length === 0) {
-            throw new AppError('No Flights found', StatusCodes.NOT_FOUND);
-        }
         return flights;
-    } catch (error) {
-        throw new AppError('Cannot fetch flights', StatusCodes.INTERNAL_SERVER_ERROR);
+    } catch(error) {
+        console.log(error);
+        throw new AppError('Cannot fetch data of all the flights', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
 
