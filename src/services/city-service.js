@@ -39,7 +39,7 @@ async function getCity(id) {
         if (error.statusCode == StatusCodes.NOT_FOUND) {
             throw new AppError('No Citites found', StatusCodes.NOT_FOUND);
         }
-        throw new AppError('Cannot delete City', StatusCodes.INTERNAL_SERVER_ERROR);
+        throw new AppError('Cannot get City', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post('/',FlightMiddleware.isValidFlight,FlightController.createFlight);
 router.get('/',FlightController.getAllFlights);
-
+router.get('/:id',FlightController.getFlight);
+router.put('/:id/seats',FlightMiddleware.isValidUpdate,FlightController.updateFlightSeats);
 
 module.exports=router;
